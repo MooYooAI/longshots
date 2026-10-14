@@ -1,0 +1,10 @@
+{
+  "name": "longshots",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:22",
+  "postCreateCommand": "npm install",
+  "forwardPorts": [3000],
+  "portsAttributes": { "3000": { "label": "웹사이트", "onAutoForward": "openBrowser" } },
+  "secrets": {
+    "ANTHROPIC_API_KEY": { "description": "Claude API 키 (console.anthropic.com에서 발급)" }
+  }
+}

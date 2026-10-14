@@ -1,0 +1,42 @@
+# 유튜브 요약
+
+긴 유튜브 영상 링크를 넣으면 AI(Claude)가 한 줄 요약, 핵심 3가지, 타임스탬프별 요점을 만들어 주는 웹사이트예요.
+
+## GitHub에서 바로 실행해 보기 (Codespaces)
+
+내 컴퓨터에 아무것도 설치하지 않고 GitHub 안에서 실행할 수 있어요.
+
+1. **API 키 등록 (처음 한 번만)**
+   GitHub 오른쪽 위 프로필 → Settings → Codespaces → Secrets → New secret
+   - Name: `ANTHROPIC_API_KEY`
+   - Value: console.anthropic.com에서 발급한 키
+   - Repository access: 이 저장소 선택
+2. 이 저장소 첫 화면에서 초록색 **Code** 버튼 → **Codespaces** 탭 → **Create codespace on main**
+3. 준비가 끝나면 아래 터미널에 입력: `npm run dev`
+4. 오른쪽 아래에 뜨는 **Open in Browser**를 누르면 웹사이트가 열려요.
+
+다 쓰고 나면 github.com/codespaces 에서 Codespace를 멈추거나 지우세요. 개인 계정은 매달 무료 사용 시간이 있어요.
+
+## 자막 가져오기만 따로 확인하기
+
+```bash
+npm run check:transcript -- "https://www.youtube.com/watch?v=영상ID"
+```
+
+"성공"이 나오면 그 환경에서 유튜브 자막을 가져올 수 있다는 뜻이에요. "BLOCKED"가 나오면 유튜브가 그 서버를 막은 것이라 다른 자막 수집 방법이 필요해요.
+
+## 설정
+
+| 이름 | 설명 |
+| --- | --- |
+| `ANTHROPIC_API_KEY` | Claude API 키 (필수) |
+| `SUMMARY_MODEL` | 요약 모델. 비워 두면 `claude-haiku-5-5` |
+
+내 컴퓨터에서 실행할 때는 `.env.example`을 `.env.local`로 복사해서 값을 넣으세요.
+
+## 구조
+
+- `app/page.tsx` 화면
+- `app/api/summarize/route.ts` 링크를 받아 요약을 돌려주는 서버
+- `lib/youtube.ts` 유튜브 자막 가져오기
+- `lib/summarize.ts` Claude로 요약하기
