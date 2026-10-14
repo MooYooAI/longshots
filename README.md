@@ -2,6 +2,19 @@
 
 긴 유튜브 영상 링크를 넣으면 AI(Claude)가 한 줄 요약, 핵심 3가지, 타임스탬프별 요점을 만들어 주는 웹사이트예요.
 
+## GitHub 워크플로우로 요약하고 사이트에서 보기
+
+사이트 주소: https://mooyooai.github.io/longshots/
+
+**처음 한 번만**: 저장소 Settings → 왼쪽 Pages → Build and deployment의 Source를 **GitHub Actions**로 바꿔 주세요.
+
+**요약하기**
+1. 저장소 위쪽 **Actions** 탭 → 왼쪽 **유튜브 요약** → 오른쪽 **Run workflow**
+2. 유튜브 링크를 붙여 넣고 초록색 **Run workflow**
+3. 1~2분 뒤 사이트를 새로고침하면 결과가 보여요. 실행 기록 화면에서도 요약을 볼 수 있어요.
+
+API 키가 없으면 자막까지만 가져오고 요청문을 만들어요. 자동 요약을 쓰려면 Settings → Secrets and variables → Actions → New repository secret에 `ANTHROPIC_API_KEY`를 넣으세요.
+
 ## GitHub에서 바로 실행해 보기 (Codespaces)
 
 내 컴퓨터에 아무것도 설치하지 않고 GitHub 안에서 실행할 수 있어요.
@@ -42,3 +55,6 @@ npm run check:transcript -- "https://www.youtube.com/watch?v=영상ID"
 - `app/api/summarize/route.ts` 링크를 받아 요약을 돌려주는 서버
 - `lib/youtube.ts` 유튜브 자막 가져오기
 - `lib/summarize.ts` Claude로 요약하기
+- `scripts/summarize-cli.ts` 워크플로우가 실행하는 요약 스크립트
+- `.github/workflows/summarize.yml` 요약 실행과 사이트 배포
+- `site/` GitHub Pages 사이트 (결과는 `site/results/`)

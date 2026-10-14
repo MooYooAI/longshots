@@ -1,0 +1,64 @@
+name: 유튜브 요약
+
+on:
+  workflow_dispatch:
+    inputs:
+      url:
+        description: "요약할 유튜브 링크 (비워 두면 사이트만 다시 배포)"
+        required: false
+        type: string
+  push:
+    branches: [main]
+    paths: ["site/**"]
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: summarize-pages
+  cancel-in-progress: false
+
+jobs:
+  summarize:
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.url != '' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: 자막 가져오기와 요약
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          PAGES_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/
+          VIDEO_URL: ${{ inputs.url }}
+        run: npx tsx scripts/summarize-cli.ts "$VIDEO_URL"
+      - name: 결과 저장
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898699+github-actions[bot]@users.noreply.github.com"
+          git add site/results
+          git commit -m "요약 결과 추가"
+          for i in 1 2 3; do git pull --rebase origin main && git push origin HEAD:main && break; sleep 5; done
+
+  deploy:
+    needs: summarize
+    if: ${{ always() && needs.summarize.result != 'failure' && needs.summarize.result != 'cancelled' }}
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+      - id: deployment
+        uses: actions/deploy-pages@v4
