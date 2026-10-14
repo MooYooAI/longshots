@@ -215,7 +215,7 @@ async function fetchViaSupadata(videoId: string, apiKey: string): Promise<Transc
 }
 
 // 제목과 채널명은 유튜브 oEmbed에서 가져와요. 실패해도 요약은 계속해요.
-async function fetchOEmbed(videoId: string): Promise<{ title: string; channel: string }> {
+export async function fetchOEmbed(videoId: string): Promise<{ title: string; channel: string }> {
   try {
     const res = await fetch(
       `https://www.youtube.com/oembed?format=json&url=${encodeURIComponent(`https://www.youtube.com/watch?v=${videoId}`)}`,

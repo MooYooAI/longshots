@@ -3,6 +3,7 @@
 // 사용법: npx tsx scripts/summarize-cli.ts "https://www.youtube.com/watch?v=..."
 import { appendFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { buildManualPrompt, formatTime, hasApiKey, summarize, type Summary } from "../lib/summarize";
+import { hasGeminiKey, summarizeWithGemini } from "../lib/gemini";
 import { fetchTranscript, parseVideoId } from "../lib/youtube";
 
 const RESULTS_DIR = "site/results";
@@ -52,6 +53,14 @@ async function main() {
   const result: Result = { id, url, createdAt, status: "error" };
 
   try {
+    // GEMINI_API_KEY가 있으면 Gemini가 영상을 직접 보고 요약해요 (자막 불필요).
+    if (hasGeminiKey()) {
+      const g = await summarizeWithGemini(url);
+      result.video = g.video;
+      result.summary = g.summary;
+      result.status = "summarized";
+      return finish(result, url, id, createdAt);
+    }
     const t = await fetchTranscript(url);
     result.video = {
       id: t.videoId,
@@ -73,7 +82,10 @@ async function main() {
     const err = e as Error & { code?: string };
     result.error = { code: err.code ?? "ERROR", message: err.message };
   }
+  finish(result, url, id, createdAt);
+}
 
+function finish(result: Result, url: string, id: string, createdAt: string) {
   mkdirSync(RESULTS_DIR, { recursive: true });
   writeFileSync(`${RESULTS_DIR}/${id}.json`, JSON.stringify(result, null, 2) + "\n");
 
@@ -95,7 +107,7 @@ async function main() {
     return;
   }
   const v = result.video!;
-  const lines = [`## ${v.title}`, `${v.channel} · ${formatTime(v.lengthSeconds)} · 자막 ${result.segmentCount}조각`, ""];
+  const lines = [`## ${v.title}`, `${v.channel} · ${formatTime(v.lengthSeconds)}${result.segmentCount ? ` · 자막 ${result.segmentCount}조각` : ""}`, ""];
   if (result.summary) {
     lines.push(`**${result.summary.oneLine}**`, "");
     lines.push(...result.summary.keyPoints.map((p) => `- ${p}`), "");
