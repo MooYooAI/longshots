@@ -1,0 +1,96 @@
+:root {
+  --bg: #f7f7f8;
+  --surface: #ffffff;
+  --text: #17171a;
+  --muted: #62626b;
+  --border: #e4e4e8;
+  --accent: #e5322d;
+  --accent-text: #ffffff;
+  --error: #c42b25;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #111113;
+    --surface: #1b1b1f;
+    --text: #ededf0;
+    --muted: #a0a0aa;
+    --border: #2e2e34;
+    --accent: #ff5a4f;
+    --error: #ff7a72;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", "Noto Sans KR", sans-serif;
+  line-height: 1.6;
+}
+.container { max-width: 760px; margin: 0 auto; padding: 48px 16px 80px; }
+.hero h1 { margin: 0 0 4px; font-size: 32px; letter-spacing: -0.02em; }
+.hero p { margin: 0 0 24px; color: var(--muted); }
+.search { display: flex; gap: 8px; }
+.search input {
+  flex: 1; min-width: 0; padding: 14px 16px; font-size: 16px;
+  border: 1px solid var(--border); border-radius: 12px;
+  background: var(--surface); color: var(--text);
+}
+.search input:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+button {
+  font: inherit; cursor: pointer; border: 0; border-radius: 12px;
+  padding: 14px 20px; background: var(--accent); color: var(--accent-text); font-weight: 600;
+}
+button:disabled { opacity: 0.5; cursor: default; }
+button.ghost {
+  background: transparent; color: var(--muted); border: 1px solid var(--border);
+  padding: 6px 12px; font-size: 14px; font-weight: 500;
+}
+.hint { color: var(--muted); }
+.error { color: var(--error); }
+.result { margin-top: 32px; display: grid; gap: 16px; }
+.player { position: relative; aspect-ratio: 16 / 9; border-radius: 12px; overflow: hidden; background: #000; }
+.player iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.meta h2 { margin: 0; font-size: 20px; }
+.meta p { margin: 4px 0 0; color: var(--muted); font-size: 14px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 20px; }
+.card h3 { margin: 0 0 8px; font-size: 15px; color: var(--muted); }
+.card-head { display: flex; justify-content: space-between; align-items: center; }
+.one-line { font-size: 18px; font-weight: 600; margin: 0 0 20px; }
+.points { margin: 0; padding-left: 20px; }
+.points li { margin-bottom: 6px; }
+.timeline { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
+.timeline li { display: flex; gap: 12px; align-items: flex-start; }
+.timeline p { margin: 2px 0 0; color: var(--muted); }
+button.time {
+  flex-shrink: 0; padding: 2px 8px; font-size: 13px; font-variant-numeric: tabular-nums;
+  background: transparent; color: var(--accent); border: 1px solid var(--accent); border-radius: 8px;
+}
+.source { color: var(--muted); font-size: 13px; }
+.source a { color: inherit; }
+@media (max-width: 520px) {
+  .search { flex-direction: column; }
+  .hero h1 { font-size: 26px; }
+}
+.prompt {
+  width: 100%; margin-top: 8px; padding: 12px; font: 13px/1.5 ui-monospace, monospace;
+  border: 1px solid var(--border); border-radius: 10px; background: var(--bg); color: var(--muted); resize: vertical;
+}
+.card a { color: var(--accent); }
+.run-box { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 20px; }
+.run-box h3 { margin: 0 0 8px; font-size: 15px; color: var(--muted); }
+.run-box ol { margin: 0 0 16px; padding-left: 20px; }
+a.button {
+  display: inline-block; text-decoration: none; border-radius: 12px; padding: 12px 18px;
+  background: var(--accent); color: var(--accent-text); font-weight: 600;
+}
+.list { list-style: none; margin: 16px 0 0; padding: 0; display: grid; gap: 8px; }
+.list a {
+  display: flex; justify-content: space-between; gap: 12px; padding: 14px 16px; text-decoration: none;
+  color: var(--text); background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+}
+.list small { color: var(--muted); white-space: nowrap; }
+.badge { white-space: nowrap; align-self: center; font-size: 12px; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--border); color: var(--muted); }
+.badge.error { color: var(--error); border-color: var(--error); }
+.back { color: var(--muted); text-decoration: none; display: inline-block; margin-bottom: 16px; }
+h2.section { margin: 32px 0 0; font-size: 18px; }
