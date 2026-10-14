@@ -1,0 +1,10 @@
+{
+  "id": "EUlgnQq4czk-20261014140246",
+  "url": "https://www.youtube.com/watch?v=EUlgnQq4czk",
+  "createdAt": "2026-10-14T14:02:46.327Z",
+  "status": "error",
+  "error": {
+    "code": "BLOCKED",
+    "message": "유튜브가 이 서버를 로봇으로 판단해 막았어요."
+  }
+}
