@@ -1,6 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { NextResponse } from "next/server";
 import { SummaryError, buildManualPrompt, hasApiKey, summarize } from "@/lib/summarize";
+import { hasGeminiKey, summarizeWithGemini } from "@/lib/gemini";
 import { TranscriptError, fetchTranscript } from "@/lib/youtube";
 
 export const runtime = "nodejs";
@@ -22,6 +23,7 @@ export async function POST(req: Request) {
   }
 
   try {
+    if (hasGeminiKey()) return NextResponse.json(await summarizeWithGemini(url));
     const transcript = await fetchTranscript(url);
     const video = {
       id: transcript.videoId,

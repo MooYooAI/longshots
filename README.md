@@ -13,7 +13,9 @@
 2. 유튜브 링크를 붙여 넣고 초록색 **Run workflow**
 3. 1~2분 뒤 사이트를 새로고침하면 결과가 보여요. 실행 기록 화면에서도 요약을 볼 수 있어요.
 
-**자막 API 키 (필수에 가까움)**: GitHub 서버에서는 유튜브가 직접 요청을 로봇으로 보고 막아요. [Supadata](https://supadata.ai)에 무료 가입(월 100회 무료)한 뒤 받은 키를 Settings → Secrets and variables → Actions → New repository secret에 이름 `SUPADATA_API_KEY`로 넣으세요.
+**Gemini 키 (추천, 무료)**: [Google AI Studio](https://aistudio.google.com/apikey)에서 무료 키를 받아 `GEMINI_API_KEY` 시크릿으로 넣으면, Gemini가 영상을 직접 보고 바로 요약해요. 자막 API나 Claude 키가 없어도 돼요. 무료 등급은 하루 유튜브 영상 8시간까지예요.
+
+**자막 API 키 (Gemini를 안 쓸 때)**: GitHub 서버에서는 유튜브가 직접 요청을 로봇으로 보고 막아요. [Supadata](https://supadata.ai)에 무료 가입(월 100회 무료)한 뒤 받은 키를 Settings → Secrets and variables → Actions → New repository secret에 이름 `SUPADATA_API_KEY`로 넣으세요.
 
 API 키가 없으면 자막까지만 가져오고 요청문을 만들어요. 자동 요약을 쓰려면 Settings → Secrets and variables → Actions → New repository secret에 `ANTHROPIC_API_KEY`를 넣으세요.
 
@@ -47,6 +49,8 @@ npm run check:transcript -- "https://www.youtube.com/watch?v=영상ID"
 | 이름 | 설명 |
 | --- | --- |
 | `ANTHROPIC_API_KEY` | Claude API 키. 없으면 "요청문 복사" 모드로 동작 |
+| `GEMINI_API_KEY` | 있으면 Gemini가 영상을 직접 보고 요약 (다른 키보다 우선) |
+| `GEMINI_MODEL` | Gemini 모델. 비워 두면 `gemini-3.8-flash` |
 | `SUPADATA_API_KEY` | 자막 API 키. 있으면 유튜브 대신 Supadata에서 자막을 가져옴 |
 | `SUMMARY_MODEL` | 요약 모델. 비워 두면 `claude-haiku-5-5` |
 
@@ -58,6 +62,7 @@ npm run check:transcript -- "https://www.youtube.com/watch?v=영상ID"
 - `app/api/summarize/route.ts` 링크를 받아 요약을 돌려주는 서버
 - `lib/youtube.ts` 유튜브 자막 가져오기
 - `lib/summarize.ts` Claude로 요약하기
+- `lib/gemini.ts` Gemini로 영상을 직접 보고 요약하기
 - `scripts/summarize-cli.ts` 워크플로우가 실행하는 요약 스크립트
 - `.github/workflows/summarize.yml` 요약 실행과 사이트 배포
 - `site/` GitHub Pages 사이트 (결과는 `site/results/`)
