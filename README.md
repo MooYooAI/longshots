@@ -6,7 +6,9 @@
 
 내 컴퓨터에 아무것도 설치하지 않고 GitHub 안에서 실행할 수 있어요.
 
-1. **API 키 등록 (처음 한 번만)**
+1. **API 키 등록 (선택)**
+   키가 없어도 실행돼요. 그때는 자막까지만 가져오고, 화면의 "요청문 복사"를 눌러 claude.ai에 붙여 넣으면 같은 요약을 볼 수 있어요.
+   자동 요약을 쓰려면:
    GitHub 오른쪽 위 프로필 → Settings → Codespaces → Secrets → New secret
    - Name: `ANTHROPIC_API_KEY`
    - Value: console.anthropic.com에서 발급한 키
@@ -29,7 +31,7 @@ npm run check:transcript -- "https://www.youtube.com/watch?v=영상ID"
 
 | 이름 | 설명 |
 | --- | --- |
-| `ANTHROPIC_API_KEY` | Claude API 키 (필수) |
+| `ANTHROPIC_API_KEY` | Claude API 키. 없으면 "요청문 복사" 모드로 동작 |
 | `SUMMARY_MODEL` | 요약 모델. 비워 두면 `claude-haiku-5-5` |
 
 내 컴퓨터에서 실행할 때는 `.env.example`을 `.env.local`로 복사해서 값을 넣으세요.
