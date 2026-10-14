@@ -13,6 +13,8 @@
 2. 유튜브 링크를 붙여 넣고 초록색 **Run workflow**
 3. 1~2분 뒤 사이트를 새로고침하면 결과가 보여요. 실행 기록 화면에서도 요약을 볼 수 있어요.
 
+**자막 API 키 (필수에 가까움)**: GitHub 서버에서는 유튜브가 직접 요청을 로봇으로 보고 막아요. [Supadata](https://supadata.ai)에 무료 가입(월 100회 무료)한 뒤 받은 키를 Settings → Secrets and variables → Actions → New repository secret에 이름 `SUPADATA_API_KEY`로 넣으세요.
+
 API 키가 없으면 자막까지만 가져오고 요청문을 만들어요. 자동 요약을 쓰려면 Settings → Secrets and variables → Actions → New repository secret에 `ANTHROPIC_API_KEY`를 넣으세요.
 
 ## GitHub에서 바로 실행해 보기 (Codespaces)
@@ -45,6 +47,7 @@ npm run check:transcript -- "https://www.youtube.com/watch?v=영상ID"
 | 이름 | 설명 |
 | --- | --- |
 | `ANTHROPIC_API_KEY` | Claude API 키. 없으면 "요청문 복사" 모드로 동작 |
+| `SUPADATA_API_KEY` | 자막 API 키. 있으면 유튜브 대신 Supadata에서 자막을 가져옴 |
 | `SUMMARY_MODEL` | 요약 모델. 비워 두면 `claude-haiku-5-5` |
 
 내 컴퓨터에서 실행할 때는 `.env.example`을 `.env.local`로 복사해서 값을 넣으세요.
