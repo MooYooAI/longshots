@@ -1,0 +1,10 @@
+{
+  "id": "EUlgnQq4czk-20261014143919",
+  "url": "https://www.youtube.com/watch?v=EUlgnQq4czk",
+  "createdAt": "2026-10-14T14:39:19.403Z",
+  "status": "error",
+  "error": {
+    "code": "ERROR",
+    "message": "Gemini 오류 (503): This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later."
+  }
+}
