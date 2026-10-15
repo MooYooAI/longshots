@@ -27,15 +27,15 @@ const PROMPT = `이 유튜브 영상을 보고 한국어로 요약해 주세요.
 - 영상에 실제로 나온 내용만 씁니다. 영상에 없는 사실, 숫자, 의견을 더하지 않습니다.
 - 영상이 외국어여도 요약은 자연스러운 한국어로 씁니다.
 - 인사, 광고, 구독 요청 같은 부분은 빼요.
-- lengthSeconds: 영상 전체 길이(초)
+- length: 영상 전체 길이, "분:초" 형식 (예: "7:48", 1시간이 넘으면 "1:02:05")
 - oneLine: 영상 전체를 한 문장으로
 - keyPoints: 가장 중요한 핵심 3가지, 각 한 문장
-- sections: 영상 흐름에 따른 타임스탬프별 요점. start는 그 구간이 시작하는 시각(초), title은 15자 안팎, summary는 1~2문장. 10분 이하면 3~5개, 30분 이하면 5~8개, 그보다 길면 8~15개.`;
+- sections: 영상 흐름에 따른 타임스탬프별 요점. start는 그 구간이 시작하는 시각, "분:초" 형식 (예: "3:29"), title은 15자 안팎, summary는 1~2문장. 10분 이하면 3~5개, 30분 이하면 5~8개, 그보다 길면 8~15개.`;
 
 const RESPONSE_SCHEMA = {
   type: "OBJECT",
   properties: {
-    lengthSeconds: { type: "NUMBER" },
+    length: { type: "STRING" },
     oneLine: { type: "STRING" },
     keyPoints: { type: "ARRAY", items: { type: "STRING" } },
     sections: {
@@ -43,7 +43,7 @@ const RESPONSE_SCHEMA = {
       items: {
         type: "OBJECT",
         properties: {
-          start: { type: "NUMBER" },
+          start: { type: "STRING" },
           title: { type: "STRING" },
           summary: { type: "STRING" },
         },
@@ -51,8 +51,25 @@ const RESPONSE_SCHEMA = {
       },
     },
   },
-  required: ["lengthSeconds", "oneLine", "keyPoints", "sections"],
+  required: ["length", "oneLine", "keyPoints", "sections"],
 };
+
+// Gemini는 초 단위 숫자를 달라고 하면 "5:04"를 504로 쓰는 실수를 해서, "분:초" 글자로 받아 직접 바꿔요.
+function toSeconds(v: unknown): number {
+  if (typeof v === "number") return v;
+  const parts = String(v ?? "").trim().split(":").map(Number);
+  if (parts.some((n) => !Number.isFinite(n))) return 0;
+  return parts.reduce((acc, n) => acc * 60 + n, 0);
+}
+
+// 사용량이 몰려 503이 나면 잠깐 기다렸다가 몇 번 더 시도해요.
+async function callGemini(url: string, init: RequestInit): Promise<Response> {
+  for (let attempt = 0; ; attempt++) {
+    const res = await fetch(url, init);
+    if ((res.status !== 503 && res.status !== 500) || attempt >= 3) return res;
+    await new Promise((r) => setTimeout(r, 5000 * 2 ** attempt));
+  }
+}
 
 export async function summarizeWithGemini(input: string): Promise<GeminiResult> {
   const videoId = parseVideoId(input);
@@ -62,7 +79,7 @@ export async function summarizeWithGemini(input: string): Promise<GeminiResult> 
 
   let res: Response;
   try {
-    res = await fetch(`${API}/${MODEL}:generateContent`, {
+    res = await callGemini(`${API}/${MODEL}:generateContent`, {
       method: "POST",
       headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
       body: JSON.stringify({
@@ -88,6 +105,7 @@ export async function summarizeWithGemini(input: string): Promise<GeminiResult> 
   if (!res.ok) {
     const msg = body?.error?.message ?? "";
     if (res.status === 429) throw new SummaryError("Gemini 무료 사용 한도를 넘었어요. 내일 다시 시도해 주세요.");
+    if (res.status === 503) throw new SummaryError("Gemini 사용량이 몰려 있어요. 잠시 후 다시 실행해 주세요.");
     if (res.status === 400 && /api key/i.test(msg)) throw new SummaryError("Gemini API 키가 잘못됐어요.");
     throw new SummaryError(`Gemini 오류 (${res.status}): ${msg}`);
   }
@@ -106,7 +124,9 @@ export async function summarizeWithGemini(input: string): Promise<GeminiResult> 
   } catch {
     throw new SummaryError("Gemini 응답 형식을 읽지 못했어요. 다시 시도해 주세요.");
   }
-  const lengthSeconds = Number((parsed as { lengthSeconds?: number }).lengthSeconds ?? 0);
+  const raw = parsed as { length?: string; sections?: { start?: unknown }[] };
+  const lengthSeconds = toSeconds(raw.length);
+  for (const sec of raw.sections ?? []) sec.start = toSeconds(sec.start);
   const check = SummarySchema.safeParse(parsed);
   if (!check.success) throw new SummaryError("Gemini 응답에 빠진 항목이 있어요. 다시 시도해 주세요.");
   const summary = check.data;
